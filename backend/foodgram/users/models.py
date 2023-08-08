@@ -36,6 +36,8 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
+    """Модель подписок на пользователей"""
+
     user = models.ForeignKey(User,
                              related_name='follower',
                              verbose_name='Подписчик',
@@ -57,7 +59,8 @@ class Follow(models.Model):
         ]
 
     def __str__(self):
-        return f'Подписчик: {self.user} - автор {self.author}'
+        return (f'Подписчик: {self.user.username} - '
+                f'Автор {self.author.username}')
 
     def clean(self):
         if self.user == self.author:
