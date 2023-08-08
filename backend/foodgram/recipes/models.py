@@ -1,5 +1,7 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
+
+from users.models import User
 
 MAX_LENGTH_TAG_NAME = 200
 MAX_LENGTH_TAG_SLUG = 200
@@ -8,8 +10,12 @@ MAX_LENGTH_TAG_HEX_COLOR = 7
 MAX_LENGTH_INGREDIENT_NAME = 200
 MAX_LENGTH_INGREDIENT_MU = 200
 
+MAX_LENGTH_RECIPE_NAME = 200
+
 
 class Ingredient(models.Model):
+    """Модель ингредиентов для рецептов"""
+
     name = models.CharField(
         max_length=MAX_LENGTH_INGREDIENT_NAME,
         verbose_name='Название'
@@ -29,6 +35,8 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """Модель тегов для рецептов"""
+
     name = models.CharField(max_length=MAX_LENGTH_TAG_NAME,
                             verbose_name='Название',
                             unique=True)
@@ -55,4 +63,85 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    pass
+    """Модель рецептов"""
+
+    name = models.CharField(max_length=MAX_LENGTH_RECIPE_NAME,
+                            verbose_name='Название рецепта')
+    tags = models.ManyToManyField(Tag,
+                                  verbose_name='Тэги',
+                                  related_name='recipes')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='recipes',
+                               verbose_name='Автор')
+    ingredients = models.ManyToManyField(Ingredient,
+                                         through='IngredientInRecipe',
+                                         verbose_name='Список ингредиентов')
+    image = models.ImageField(upload_to='recipes/',
+                              verbose_name='Картинка')
+    text = models.TextField(verbose_name='Описание')
+    pub_date = models.DateTimeField(auto_now_add=True,
+                                    verbose_name='Дата публикации')
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
+        validators=[
+            MinValueValidator(
+                1, 'Время должно быть не меньше 1 минуты'
+            )
+        ]
+    )
+    favorite = models.ManyToManyField(
+        User,
+        verbose_name='Избранное пользователя',
+        related_name='favorited',
+        db_table='favorite')
+
+    shoppingcart = models.ManyToManyField(
+        User,
+        verbose_name='Избранное пользователя',
+        related_name='shoppingcart',
+        db_table='shoppingcart')
+
+    class Meta:
+        ordering = ('-pub_date',)
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
+
+
+class IngredientInRecipe(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент'
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        validators=[
+            MinValueValidator(
+                1, 'Количество ингредиентов не может быть меньше 1'
+            )
+        ]
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.recipe.name}: {self.ingredient.name} - '
+            f'{self.amount} {self.ingredient.measurement_unit}'
+        )

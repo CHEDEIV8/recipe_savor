@@ -2,6 +2,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+
 from .validators import validate_me
 
 MAX_EMAIL_LENGTH = 254
@@ -9,6 +10,8 @@ MAX_FIELDS_LENGTH = 150
 
 
 class User(AbstractUser):
+    """Модель пользователя"""
+
     email = models.EmailField(unique=True,
                               max_length=MAX_EMAIL_LENGTH,
                               verbose_name='Электронная почта')
@@ -49,7 +52,7 @@ class Follow(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='uniqe_follow'
+                name='unique_follow'
             )
         ]
 
