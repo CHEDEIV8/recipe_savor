@@ -1,11 +1,38 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from .validators import validate_me
 
-User = get_user_model()
+MAX_EMAIL_LENGTH = 254
+MAX_FIELDS_LENGTH = 150
 
 
-class Follow(models.Model): 
+class User(AbstractUser):
+    email = models.EmailField(unique=True,
+                              max_length=MAX_EMAIL_LENGTH,
+                              verbose_name='Электронная почта')
+    username = models.CharField(unique=True,
+                                max_length=MAX_FIELDS_LENGTH,
+                                verbose_name='Имя пользователя',
+                                validators=[
+                                    UnicodeUsernameValidator(),
+                                    validate_me
+                                ])
+    first_name = models.CharField(max_length=MAX_FIELDS_LENGTH,
+                                  verbose_name='Имя')
+    last_name = models.CharField(max_length=MAX_FIELDS_LENGTH,
+                                 verbose_name='Фамилия')
+    password = models.CharField(max_length=MAX_FIELDS_LENGTH,
+                                verbose_name='Пароль')
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+
+class Follow(models.Model):
     user = models.ForeignKey(User,
                              related_name='follower',
                              verbose_name='Подписчик',
@@ -23,11 +50,11 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'author'],
                 name='uniqe_follow'
-                )
-            ]
+            )
+        ]
 
     def __str__(self):
-        return f'Подписчик: {self.user.username} - автор {self.author.username}'
+        return f'Подписчик: {self.user} - автор {self.author}'
 
     def clean(self):
         if self.user == self.author:
