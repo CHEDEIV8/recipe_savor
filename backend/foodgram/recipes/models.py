@@ -69,7 +69,8 @@ class Recipe(models.Model):
                             verbose_name='Название рецепта')
     tags = models.ManyToManyField(Tag,
                                   verbose_name='Тэги',
-                                  related_name='recipes')
+                                  related_name='recipes',
+                                  blank=True)
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='recipes',
@@ -94,13 +95,15 @@ class Recipe(models.Model):
         User,
         verbose_name='Избранное пользователя',
         related_name='favorited',
-        db_table='favorite')
+        db_table='recipe_favorite',
+        blank=True)
 
     shoppingcart = models.ManyToManyField(
         User,
-        verbose_name='Избранное пользователя',
+        verbose_name='Покупки пользователя',
         related_name='shoppingcart',
-        db_table='shoppingcart')
+        db_table='recipe_shoppingcart',
+        blank=True)
 
     class Meta:
         ordering = ('-pub_date',)
@@ -133,6 +136,9 @@ class IngredientInRecipe(models.Model):
     )
 
     class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Ингрединт к рецепту'
+        verbose_name_plural = 'Ингрединты к рецепту'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
