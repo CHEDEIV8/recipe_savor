@@ -63,7 +63,7 @@ class RecipeMinSerializer(serializers.ModelSerializer):
 
 
 class UserFollowSerializer(CustomUserSerializer):
-    recipes_count = serializers.IntegerField(read_only=True)
+    recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
 
     class Meta:
@@ -75,5 +75,11 @@ class UserFollowSerializer(CustomUserSerializer):
     def get_recipes(self, obj):
         request = self.context['request']
         limit = int(request.GET.get('recipes_limit', 0))
-        queryset = obj.recipes.all()[:limit] if limit > 0 else obj.recipes.all()
+        if limit > 0:
+            queryset = obj.recipes.all()[:limit]
+        else:
+            queryset = obj.recipes.all()
         return RecipeMinSerializer(queryset, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
