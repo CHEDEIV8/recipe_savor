@@ -7,17 +7,21 @@ from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 
 from api.serializers import (IngredientSerializer,
                              TagSerializer,
-                             UserFollowSerializer)
-from recipes.models import Ingredient, Tag
+                             UserFollowSerializer,
+                             RecipeReadSerializer,
+                             RecipeWriteSerializer,)
+from recipes.models import Ingredient, Tag, Recipe
 from users.models import Follow
+from api.permissions import IsAuthorOrReadOnly
 from .filters import IngredientFilter
 
 User = get_user_model()
@@ -29,6 +33,7 @@ class TagViewSet(RetrieveModelMixin,
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
+    permission_classes = (AllowAny,)
 
 
 class IngredientViewSet(RetrieveModelMixin,
@@ -37,6 +42,7 @@ class IngredientViewSet(RetrieveModelMixin,
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend, )
     filterset_class = IngredientFilter
 
@@ -81,3 +87,37 @@ class CustomUserViewSet(UserViewSet):
             raise ValidationError('Подписка не существует')
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecipeViewSet(ModelViewSet):
+    queryset = Recipe.objects.all()
+    permission_classes = (IsAuthorOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, )
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH'):
+            return RecipeWriteSerializer
+        return RecipeReadSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query_params = self.request.query_params
+
+        is_favorited = query_params.get('is_favorited')
+        if is_favorited == '1':
+            queryset = queryset.filter(favorite=self.request.user)
+
+        is_in_shopping_cart = query_params.get('is_in_shopping_cart')
+        if is_in_shopping_cart == '1':
+            queryset = queryset.filter(shoppingcart=self.request.user)
+
+        author = query_params.get('author')
+        if author is not None:
+            queryset = queryset.filter(author=author)
+
+        tags = query_params.getlist('tags')
+        if tags:
+            queryset = queryset.filter(tags__slug__in=tags)
+
+        return queryset
