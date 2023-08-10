@@ -18,7 +18,8 @@ from api.serializers import (IngredientSerializer,
                              TagSerializer,
                              UserFollowSerializer,
                              RecipeReadSerializer,
-                             RecipeWriteSerializer,)
+                             RecipeWriteSerializer,
+                             RecipeMinSerializer)
 from recipes.models import Ingredient, Tag, Recipe
 from users.models import Follow
 from api.permissions import IsAuthorOrReadOnly
@@ -121,3 +122,45 @@ class RecipeViewSet(ModelViewSet):
             queryset = queryset.filter(tags__slug__in=tags)
 
         return queryset
+
+    @action(methods=['post'],
+            detail=True,
+            serializer_class=RecipeMinSerializer)
+    def shopping_cart(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if recipe.shoppingcart.contains(user):
+            raise ValidationError('Рецепт уже есть в списке покупок')
+        recipe.shoppingcart.add(user)
+        serializer = self.serializer_class(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @shopping_cart.mapping.delete
+    def shoping_cart_delete(self, request, pk=None):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if not recipe.shoppingcart.contains(user):
+            raise ValidationError('Рецепт отсутствует в списке покупок')
+        recipe.shoppingcart.remove(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['post'],
+            detail=True,
+            serializer_class=RecipeMinSerializer)
+    def favorite(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if recipe.favorite.contains(user):
+            raise ValidationError('Рецепт уже есть в списке избранных')
+        recipe.favorite.add(user)
+        serializer = self.serializer_class(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def favorite_delete(self, request, pk=None):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if not recipe.favorite.contains(user):
+            raise ValidationError('Рецепт отсутствует в списке избранных')
+        recipe.favorite.remove(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
