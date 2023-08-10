@@ -1,9 +1,10 @@
 # from django.shortcuts import render
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
@@ -11,11 +12,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 from rest_framework import status
+
 from api.serializers import (IngredientSerializer,
                              TagSerializer,
                              UserFollowSerializer)
 from recipes.models import Ingredient, Tag
 from users.models import Follow
+from .filters import IngredientFilter
 
 User = get_user_model()
 
@@ -25,6 +28,7 @@ class TagViewSet(RetrieveModelMixin,
                  GenericViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientViewSet(RetrieveModelMixin,
@@ -32,6 +36,9 @@ class IngredientViewSet(RetrieveModelMixin,
                         GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = IngredientFilter
 
 
 class CustomUserViewSet(UserViewSet):
