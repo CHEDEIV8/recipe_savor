@@ -23,7 +23,8 @@ from api.serializers import (IngredientSerializer,
 from recipes.models import Ingredient, Tag, Recipe
 from users.models import Follow
 from api.permissions import IsAuthorOrReadOnly
-from .filters import IngredientFilter
+from api.filters import IngredientFilter
+from api.utils import handle_action
 
 User = get_user_model()
 
@@ -123,44 +124,26 @@ class RecipeViewSet(ModelViewSet):
 
         return queryset
 
-    @action(methods=['post'],
+    @action(methods=['post', 'delete'],
             detail=True,
             serializer_class=RecipeMinSerializer)
     def shopping_cart(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if recipe.shoppingcart.contains(user):
-            raise ValidationError('Рецепт уже есть в списке покупок')
-        recipe.shoppingcart.add(user)
-        serializer = self.serializer_class(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return handle_action(
+            request=request,
+            pk=pk,
+            relation='shoppingcart',
+            error_message='Рецепт отсутствует в списке покупок',
+            serializer=self.serializer_class
+        )
 
-    @shopping_cart.mapping.delete
-    def shoping_cart_delete(self, request, pk=None):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if not recipe.shoppingcart.contains(user):
-            raise ValidationError('Рецепт отсутствует в списке покупок')
-        recipe.shoppingcart.remove(user)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(methods=['post'],
+    @action(methods=['post', 'delete'],
             detail=True,
             serializer_class=RecipeMinSerializer)
     def favorite(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if recipe.favorite.contains(user):
-            raise ValidationError('Рецепт уже есть в списке избранных')
-        recipe.favorite.add(user)
-        serializer = self.serializer_class(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @favorite.mapping.delete
-    def favorite_delete(self, request, pk=None):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        if not recipe.favorite.contains(user):
-            raise ValidationError('Рецепт отсутствует в списке избранных')
-        recipe.favorite.remove(user)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return handle_action(
+            request=request,
+            pk=pk,
+            relation='favorite',
+            error_message='Рецепт отсутствует в списке избранных',
+            serializer=self.serializer_class
+        )
