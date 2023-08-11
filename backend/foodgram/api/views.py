@@ -11,7 +11,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 
 from api.serializers import (IngredientSerializer,
@@ -102,6 +102,9 @@ class RecipeViewSet(ModelViewSet):
             return RecipeWriteSerializer
         return RecipeReadSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     def get_queryset(self):
         queryset = super().get_queryset()
         query_params = self.request.query_params
@@ -147,3 +150,8 @@ class RecipeViewSet(ModelViewSet):
             error_message='Рецепт отсутствует в списке избранных',
             serializer=self.serializer_class
         )
+
+    @action(detail=False, permission_classes=(IsAuthenticated,))
+    def download_shopping_cart(self, request):
+        recipe = self.queryset.filter(shoppingcart=request.user)
+        print(recipe)
