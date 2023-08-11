@@ -120,7 +120,7 @@ class RecipeViewSet(ModelViewSet):
 
         tags = query_params.getlist('tags')
         if tags:
-            queryset = queryset.filter(tags__slug__in=tags)
+            queryset = queryset.filter(tags__slug__in=tags).distinct()
 
         return queryset
 
@@ -157,7 +157,7 @@ class RecipeViewSet(ModelViewSet):
         ).annotate(total_count=Sum('ingredientinrecipe__amount'))
 
         response = HttpResponse(content_type='text/plain')
-        response['Content-Disposition'] = 'attachmant; filename=shoping_cart'
+        response['Content-Disposition'] = 'attachment; filename=shopping_cart'
         response.writelines('Игредиенты для покупок by FoodGram:\n\n')
         response.writelines(f'{i.name}: {i.total_count}'
                             f'{i.measurement_unit}\n'
