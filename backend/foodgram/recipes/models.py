@@ -77,7 +77,8 @@ class Recipe(models.Model):
                                verbose_name='Автор рецепта')
     ingredients = models.ManyToManyField(Ingredient,
                                          through='IngredientInRecipe',
-                                         verbose_name='Список ингредиентов')
+                                         verbose_name='Список ингредиентов',
+                                         related_name='recipe')
     image = models.ImageField(upload_to='recipes/',
                               verbose_name='Картинка')
     text = models.TextField(verbose_name='Описание')

@@ -1,6 +1,7 @@
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 
@@ -153,5 +154,16 @@ class RecipeViewSet(ModelViewSet):
 
     @action(detail=False, permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
-        recipe = self.queryset.filter(shoppingcart=request.user)
-        print(recipe)
+        recipes_in_shopping_cart = Recipe.objects.filter(
+            shoppingcart=request.user).values('id')
+        recipe_ingredients = Ingredient.objects.filter(
+            recipe__id__in=recipes_in_shopping_cart
+        ).annotate(total_count=Sum('ingredientinrecipe__amount'))
+
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = 'attachmant; filename=shoping_cart'
+        response.writelines('Игредиенты для покупок by FoodGram:\n\n')
+        response.writelines(f'{i.name}: {i.total_count}'
+                            f'{i.measurement_unit}\n'
+                            for i in recipe_ingredients)
+        return response
