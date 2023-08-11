@@ -1,31 +1,27 @@
 # from django.shortcuts import render
-from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import status
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from api.serializers import (IngredientSerializer,
-                             TagSerializer,
-                             UserFollowSerializer,
-                             RecipeReadSerializer,
-                             RecipeWriteSerializer,
-                             RecipeMinSerializer)
-from recipes.models import Ingredient, Tag, Recipe
-from users.models import Follow
-from api.permissions import IsAuthorOrReadOnly
 from api.filters import IngredientFilter
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (IngredientSerializer, RecipeMinSerializer,
+                             RecipeReadSerializer, RecipeWriteSerializer,
+                             TagSerializer, UserFollowSerializer)
 from api.utils import handle_action
+from recipes.models import Ingredient, Recipe, Tag
+from users.models import Follow
 
 User = get_user_model()
 

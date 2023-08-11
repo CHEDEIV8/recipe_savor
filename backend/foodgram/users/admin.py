@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Follow
+
+from .models import Follow, User
 
 User = get_user_model()
 
