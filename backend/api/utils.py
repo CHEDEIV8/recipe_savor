@@ -8,7 +8,10 @@ from recipes.models import Recipe
 
 
 def handle_action(request, pk, relation, error_message, serializer):
-    """Создает эндпойтн для пары действий POST и DELETE"""
+    """
+    Создает обработчик для пары действий POST и DELETE
+    на основе переданных параметров.
+    """
 
     user = request.user
     recipe = get_object_or_404(Recipe, pk=pk)

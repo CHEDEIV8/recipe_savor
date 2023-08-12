@@ -32,6 +32,8 @@ User = get_user_model()
 class TagViewSet(RetrieveModelMixin,
                  ListModelMixin,
                  GenericViewSet):
+    """ViewSet для работы с моделью Tag."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
@@ -41,6 +43,8 @@ class TagViewSet(RetrieveModelMixin,
 class IngredientViewSet(RetrieveModelMixin,
                         ListModelMixin,
                         GenericViewSet):
+    """ViewSet для работы с моделью Ingredient."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -50,6 +54,8 @@ class IngredientViewSet(RetrieveModelMixin,
 
 
 class CustomUserViewSet(UserViewSet):
+    """ViewSet для работы с моделью User."""
+
     http_method_names = ['get', 'post', 'delete']
 
     @action(detail=False, serializer_class=UserFollowSerializer)
@@ -92,6 +98,8 @@ class CustomUserViewSet(UserViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    """ViewSet для работы с моделью Recipe."""
+
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend, )
@@ -161,7 +169,6 @@ class RecipeViewSet(ModelViewSet):
 
         response = HttpResponse(content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename=shopping_cart'
-        response.writelines('Игредиенты для покупок by FoodGram:\n\n')
         response.writelines(f'{i.name}: {i.total_count}'
                             f'{i.measurement_unit}\n'
                             for i in recipe_ingredients)

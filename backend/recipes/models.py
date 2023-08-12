@@ -68,7 +68,7 @@ class Recipe(models.Model):
     name = models.CharField(max_length=MAX_LENGTH_RECIPE_NAME,
                             verbose_name='Название рецепта')
     tags = models.ManyToManyField(Tag,
-                                  verbose_name='Тэги',
+                                  verbose_name='Теги',
                                   related_name='recipes',
                                   blank=True)
     author = models.ForeignKey(User,
@@ -116,6 +116,11 @@ class Recipe(models.Model):
 
 
 class IngredientInRecipe(models.Model):
+    """
+    Модель представляет связь между рецептом и ингредиентом,
+    указывая количество ингредиента в рецепте.
+    """
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -131,7 +136,7 @@ class IngredientInRecipe(models.Model):
         verbose_name='Количество',
         validators=[
             MinValueValidator(
-                1, 'Количество ингредиентов не может быть меньше 1'
+                1, 'Количество ингредиента не может быть меньше 1'
             )
         ]
     )
