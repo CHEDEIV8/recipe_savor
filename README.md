@@ -1,6 +1,11 @@
 # Проект: recipe_savor
 
 ---
+- domain - https://recipesavor.ddns.net/
+- admin name - admin
+- admin password - recipesavor
+- admin email - admin@admin.ru
+
 
 ### Стек:
 Python, Django, Django REST Framework, Djoser, Node.js, React, Gunicorn, Nginx, Docker, GitHub Actions
@@ -71,8 +76,8 @@ sudo systemctl reload nginx
 
  
 6. Добавить в GitHub Actions следующие секреты:
-
-> DOCKER\_USERNAME - логин от Docker Hub
+```
+DOCKER\_USERNAME - логин от Docker Hub
 DOCKER\_PASSWORD - пароль от Docker Hub
 SSH\_KEY - закрытый ssh-ключ для подключения к серверу
 SSH\_PASSPHRASE - passphrase от этого ключа
@@ -80,7 +85,7 @@ USER - имя пользователя на сервере
 HOST - IP-адрес сервера
 TELEGRAM\_TO - ID телеграм-аккаунта для оповещения об успешном деплое
 TELEGRAM\_TOKEN - токен телеграм-бота
-
+```
 ---
 
 ### Об авторе
