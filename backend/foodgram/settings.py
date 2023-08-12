@@ -9,6 +9,11 @@ DEBUG = os.getenv('DEBUG_VALUE', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
+CSRF_TRUSTED_ORIGINS = (
+    os.environ['CSRF_TRUSTED_ORIGINS'].split(',')
+    if 'CSRF_TRUSTED_ORIGINS' in os.environ else []
+)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
