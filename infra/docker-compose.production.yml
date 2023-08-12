@@ -22,7 +22,7 @@ services:
     image: decher/foodgram_frontend
     env_file: .env
     volumes:
-      - static:/app/result_build
+      - static_volume:/app/result_build
   gateway:
     image: decher/foodgram_gateway
     env_file: .env
