@@ -24,7 +24,7 @@ services:
     volumes:
       - static_volume:/app/result_build
   gateway:
-    image: decher/foodgram_gateway
+    image: nginx:1.19.3
     env_file: .env
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
