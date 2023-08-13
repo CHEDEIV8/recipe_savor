@@ -30,8 +30,6 @@ class TagViewSet(ReadOnlyModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    # По ТЗ пагинация по игредиентам и тегам должна быть отключена
-    # иначе ломается frontend
     pagination_class = None
     permission_classes = (AllowAny,)
 
@@ -42,8 +40,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    # По ТЗ пагинация по игредиентам и тегам должна быть отключена
-    # иначе ломается frontend
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend, )
     filterset_class = IngredientFilter

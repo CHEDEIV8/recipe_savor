@@ -1,13 +1,6 @@
 # Проект: recipe_savor
 
 ---
-Антон здравствуйте. Я не могу написать вам в пачке, так как вас нет в нашей кагорте и обсудить с вами вопросы которые могут остаться. Админка теперь работает. Нужно очистить кэш либо заходить со слешем в конце https://recipesavor.ddns.net/admin/
-
-- domain - https://recipesavor.ddns.net/
-- admin name - admin
-- admin password - recipesavor
-- admin email - admin@admin.ru
-
 
 ### Стек:
 Python, Django, Django REST Framework, Djoser, Node.js, React, Gunicorn, Nginx, Docker, GitHub Actions
