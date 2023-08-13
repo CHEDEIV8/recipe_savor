@@ -22,7 +22,7 @@ Python, Django, Django REST Framework, Djoser, Node.js, React, Gunicorn, Nginx, 
 
 1. Клонировать репозиторий:
 ```bash
-	git@github.com:CHEDEIV8/recipe_savor.git
+    git@github.com:CHEDEIV8/recipe_savor.git
 	cd infra/
 ```
 2. Создать в папке infra/ файл **.env** с переменными окружения (см. [.env.example](.env.example)).

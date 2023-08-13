@@ -1,14 +1,12 @@
 import base64
 
-from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
-from users.models import Follow
-
-User = get_user_model()
+from users.models import Follow, User
 
 
 class CustomUserSerializer(UserSerializer):
@@ -160,14 +158,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return ingredients
 
     def create_ingredient(self, recipe, ingredients_data):
-        for ingredient_data in ingredients_data:
-            ingredient = ingredient_data.pop('id')
-            IngredientInRecipe.objects.create(
+        IngredientInRecipe.objects.bulk_create(
+            IngredientInRecipe(
                 recipe=recipe,
-                ingredient=ingredient,
-                **ingredient_data
-            )
+                ingredient=ingredient_data['id'],
+                amount=ingredient_data['amount'])
+            for ingredient_data in ingredients_data
+        )
 
+    @transaction.atomic
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -177,6 +176,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')

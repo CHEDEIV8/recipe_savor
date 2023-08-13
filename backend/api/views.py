@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -6,11 +5,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.filters import IngredientFilter
 from api.permissions import IsAuthorOrReadOnly
@@ -24,30 +22,28 @@ from api.serializers import (
 )
 from api.utils import handle_action
 from recipes.models import Ingredient, Recipe, Tag
-from users.models import Follow
-
-User = get_user_model()
+from users.models import Follow, User
 
 
-class TagViewSet(RetrieveModelMixin,
-                 ListModelMixin,
-                 GenericViewSet):
+class TagViewSet(ReadOnlyModelViewSet):
     """ViewSet для работы с моделью Tag."""
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    # По ТЗ пагинация по игредиентам и тегам должна быть отключена
+    # иначе ломается frontend
     pagination_class = None
     permission_classes = (AllowAny,)
 
 
-class IngredientViewSet(RetrieveModelMixin,
-                        ListModelMixin,
-                        GenericViewSet):
+class IngredientViewSet(ReadOnlyModelViewSet):
     """ViewSet для работы с моделью Ingredient."""
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    # По ТЗ пагинация по игредиентам и тегам должна быть отключена
+    # иначе ломается frontend
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend, )
     filterset_class = IngredientFilter
@@ -169,7 +165,7 @@ class RecipeViewSet(ModelViewSet):
 
         response = HttpResponse(content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename=shopping_cart'
-        response.writelines(f'{i.name}: {i.total_count}'
-                            f'{i.measurement_unit}\n'
-                            for i in recipe_ingredients)
+        response.writelines(f'{ingredient.name}: {ingredient.total_count}'
+                            f'{ingredient.measurement_unit}\n'
+                            for ingredient in recipe_ingredients)
         return response

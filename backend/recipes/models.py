@@ -1,4 +1,8 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+    RegexValidator,
+)
 from django.db import models
 
 from users.models import User
@@ -89,6 +93,9 @@ class Recipe(models.Model):
         validators=[
             MinValueValidator(
                 1, 'Время должно быть не меньше 1 минуты'
+            ),
+            MaxValueValidator(
+                1440, 'Время должно быть не больше 1440 минут (сутки)'
             )
         ]
     )
@@ -137,6 +144,9 @@ class IngredientInRecipe(models.Model):
         validators=[
             MinValueValidator(
                 1, 'Количество ингредиента не может быть меньше 1'
+            ),
+            MaxValueValidator(
+                10000, 'Время должно быть не больше 1000'
             )
         ]
     )
