@@ -1,6 +1,9 @@
 # Проект: recipe_savor
 
 ---
+Антон здравствуйте. Я не могу написать вам в пачке, так как вас нет в нашей кагорте и обсудить с вами вопросы, по этому я пишу вам тут. Админка работает, надо указать путь https://recipesavor.ddns.net/admin/. Вот доказательства
+<img width="460" alt="Снимок4" src="https://github.com/CHEDEIV8/foodgram-project-react/assets/121489351/12fb69ed-27c6-4be6-adb6-1fea0078541e">
+
 - domain - https://recipesavor.ddns.net/
 - admin name - admin
 - admin password - recipesavor
